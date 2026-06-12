@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مراجعة المفردات — Units 1,2,4,5,6,7,8,9</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f5f5f3;min-height:100vh;padding:1rem;}
+#app{max-width:680px;margin:0 auto;padding:1rem;}
+.header{text-align:center;padding:1.5rem 0 1rem;}
+.header h1{font-size:24px;font-weight:600;color:#1a1a1a;}
+.header p{font-size:14px;color:#666;margin-top:6px;}
+.controls{display:flex;gap:6px;justify-content:center;margin-bottom:1rem;flex-wrap:wrap;}
+.tab{padding:7px 13px;border-radius:999px;border:1px solid #ccc;background:#fff;color:#555;font-size:12px;cursor:pointer;transition:all 0.15s;}
+.tab.active{background:#1a1a1a;color:#fff;border-color:transparent;}
+.mode-toggle{display:flex;background:#ececec;border-radius:999px;padding:3px;gap:2px;margin:0 auto 1.2rem;width:fit-content;}
+.mode-btn{padding:7px 14px;border-radius:999px;border:none;background:transparent;color:#555;font-size:12px;cursor:pointer;transition:all 0.15s;}
+.mode-btn.active{background:#fff;color:#1a1a1a;box-shadow:0 0 0 1px #ccc;}
+.progress-bar{background:#e0e0e0;border-radius:999px;height:6px;margin-bottom:1rem;overflow:hidden;}
+.progress-fill{height:100%;border-radius:999px;background:#1a1a1a;transition:width 0.3s;}
+.stats{display:flex;gap:10px;margin-bottom:1.2rem;}
+.stat{flex:1;background:#fff;border-radius:10px;padding:10px;text-align:center;border:1px solid #e8e8e8;}
+.stat-num{font-size:22px;font-weight:600;color:#1a1a1a;}
+.stat-label{font-size:11px;color:#888;margin-top:2px;}
+.question-card{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:1.5rem;margin-bottom:1rem;}
+.q-counter{font-size:12px;color:#aaa;margin-bottom:8px;}
+.q-mode-badge{display:inline-block;font-size:11px;padding:3px 12px;border-radius:999px;margin-bottom:10px;}
+.badge-ar{background:#dbeafe;color:#1d4ed8;}
+.badge-en{background:#dcfce7;color:#166534;}
+.q-main{font-size:22px;font-weight:600;color:#1a1a1a;margin-bottom:6px;line-height:1.4;}
+.q-sub{font-size:14px;color:#888;margin-bottom:1.2rem;}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.opt{padding:13px 14px;border-radius:10px;border:1px solid #ddd;background:#fff;color:#1a1a1a;font-size:14px;cursor:pointer;text-align:center;transition:all 0.12s;line-height:1.4;font-family:inherit;}
+.opt:hover:not(:disabled){background:#f5f5f5;}
+.opt.correct{background:#dcfce7;border-color:#16a34a;color:#14532d;}
+.opt.wrong{background:#fee2e2;border-color:#dc2626;color:#7f1d1d;}
+.opt:disabled{cursor:default;}
+.opt.ar-opt{direction:rtl;}
+.opt.en-opt{font-style:italic;}
+.feedback{margin-top:1rem;padding:10px 14px;border-radius:10px;font-size:14px;display:none;direction:rtl;}
+.feedback.correct{background:#dcfce7;color:#14532d;display:block;}
+.feedback.wrong{background:#fee2e2;color:#7f1d1d;display:block;}
+.next-btn{width:100%;margin-top:1rem;padding:13px;border-radius:10px;border:none;background:#1a1a1a;color:#fff;font-size:15px;font-weight:600;cursor:pointer;display:none;font-family:inherit;}
+.next-btn:hover{background:#333;}
+.result-screen{text-align:center;padding:2.5rem 1rem;display:none;background:#fff;border-radius:14px;border:1px solid #e8e8e8;}
+.result-score{font-size:56px;font-weight:700;color:#1a1a1a;}
+.result-msg{font-size:16px;color:#555;margin-top:10px;margin-bottom:1.5rem;direction:rtl;}
+.restart-btn{padding:12px 36px;border-radius:999px;border:1px solid #ccc;background:#fff;color:#1a1a1a;font-size:15px;cursor:pointer;font-family:inherit;}
+.restart-btn:hover{background:#f5f5f5;}
+@media(max-width:480px){.options{grid-template-columns:1fr;}.mode-btn{font-size:11px;padding:6px 10px;}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <h1>📚 مراجعة المفردات</h1>
+    <p>Vocabulary Review — Units 1, 2, 4, 5, 6, 7, 8, 9</p>
+  </div>
+  <div class="controls">
+    <button class="tab active" onclick="selectUnit('all',this)">الكل</button>
+    <button class="tab" onclick="selectUnit(1,this)">Unit 1</button>
+    <button class="tab" onclick="selectUnit(2,this)">Unit 2</button>
+    <button class="tab" onclick="selectUnit(4,this)">Unit 4</button>
+    <button class="tab" onclick="selectUnit(5,this)">Unit 5</button>
+    <button class="tab" onclick="selectUnit(6,this)">Unit 6</button>
+    <button class="tab" onclick="selectUnit(7,this)">Unit 7</button>
+    <button class="tab" onclick="selectUnit(8,this)">Unit 8</button>
+    <button class="tab" onclick="selectUnit(9,this)">Unit 9</button>
+  </div>
+  <div class="mode-toggle">
+    <button class="mode-btn active" onclick="selectMode('ar',this)">🇸🇦 عربي ← إنجليزي</button>
+    <button class="mode-btn" onclick="selectMode('en',this)">🇬🇧 إنجليزي ← عربي</button>
+    <button class="mode-btn" onclick="selectMode('mix',this)">🔀 مزيج</button>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="s-score">0</div><div class="stat-label">✅ صحيح</div></div>
+    <div class="stat"><div class="stat-num" id="s-wrong">0</div><div class="stat-label">❌ خطأ</div></div>
+    <div class="stat"><div class="stat-num" id="s-remain">0</div><div class="stat-label">📝 متبقي</div></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+  <div class="question-card" id="qcard">
+    <div class="q-counter" id="qcount"></div>
+    <div class="q-mode-badge" id="qbadge"></div>
+    <div class="q-main" id="qmain"></div>
+    <div class="q-sub" id="qsub"></div>
+    <div class="options" id="opts"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextbtn" onclick="nextQ()">السؤال التالي ←</button>
+  </div>
+  <div class="result-screen" id="result">
+    <div class="result-score" id="res-score"></div>
+    <div class="result-msg" id="res-msg"></div>
+    <button class="restart-btn" onclick="restart()">🔄 ابدأ من جديد</button>
+  </div>
+</div>
+<script>
+const allWords=[
+  // Unit 1 - Get the message
+  {u:1,en:"carry a message",ar:"يحمل الرسالة"},
+  {u:1,en:"convey a message",ar:"يوصل الرسالة"},
+  {u:1,en:"spread a message",ar:"ينشر الرسالة"},
+  {u:1,en:"pass on a message",ar:"يمرر الرسالة"},
+  {u:1,en:"deliver a message",ar:"يسلم الرسالة"},
+  {u:1,en:"make contact",ar:"يتواصل مع شخص آخر"},
+  {u:1,en:"lose contact",ar:"يفقد التواصل"},
+  {u:1,en:"establish contact",ar:"يؤسس أو يعمل اتصال"},
+  {u:1,en:"maintain contact",ar:"يحافظ على التواصل"},
+  {u:1,en:"stay in touch",ar:"يبقى على تواصل"},
+  {u:1,en:"astonished",ar:"مندهش"},
+  {u:1,en:"bewildered",ar:"حائر"},
+  {u:1,en:"devastated",ar:"حزين جداً"},
+  {u:1,en:"ecstatic",ar:"سعيد جداً"},
+  {u:1,en:"exasperated",ar:"منزعج"},
+  {u:1,en:"livid",ar:"غاضب جداً"},
+  {u:1,en:"tense",ar:"متوتر"},
+  {u:1,en:"terrified",ar:"خائف"},
+  {u:1,en:"groom",ar:"ينظف الفرو"},
+  {u:1,en:"omnivore",ar:"قارت على النباتات والحيوانات"},
+  {u:1,en:"rival",ar:"منافس أو مجموعة منافسة"},
+  {u:1,en:"point out",ar:"يشير إلى"},
+  {u:1,en:"spell out",ar:"يشرح بتفصيل أو يوضح"},
+  {u:1,en:"bring about",ar:"يسبب"},
+  {u:1,en:"wipe out",ar:"يزيل أو يقصي"},
+  {u:1,en:"figure out",ar:"يفهم أو يحل شيئاً"},
+  {u:1,en:"make out",ar:"يميز أو يرى شيء من حوله بصعوبة"},
+  {u:1,en:"get across",ar:"يوضح أو يجعل الآخرين يفهمون الفكرة"},
+  {u:1,en:"come across",ar:"يلتقي"},
+  {u:1,en:"take in",ar:"يفهم"},
+  {u:1,en:"pick up",ar:"يلتقط / يأخذ"},
+  {u:1,en:"different",ar:"مختلف"},
+  {u:1,en:"ancient",ar:"قديم"},
+  {u:1,en:"signals",ar:"إشارات"},
+  {u:1,en:"invent",ar:"يخترع"},
+  {u:1,en:"ingenious",ar:"بارع / عبقري"},
+  {u:1,en:"procedures",ar:"إجراءات"},
+  {u:1,en:"future",ar:"مستقبل"},
+  {u:1,en:"receive",ar:"يتلقى"},
+  {u:1,en:"sign language",ar:"لغة الإشارة"},
+  {u:1,en:"realise",ar:"يدرك"},
+  {u:1,en:"artificial intelligence",ar:"الذكاء الاصطناعي"},
+  {u:1,en:"lingua franca",ar:"اللغة المشتركة"},
+  {u:1,en:"hieroglyphics",ar:"اللغة الهيروغليفية"},
+  // Unit 2 - Looking ahead
+  {u:2,en:"dystopia",ar:"الواقع المرير"},
+  {u:2,en:"lead to something",ar:"يؤدي إلى"},
+  {u:2,en:"be due to",ar:"يكون بسبب"},
+  {u:2,en:"as a result of",ar:"نتيجة لـ"},
+  {u:2,en:"give rise to",ar:"يسبب"},
+  {u:2,en:"acid rain",ar:"المطر الحمضي"},
+  {u:2,en:"fossil fuels",ar:"الوقود الأحفوري"},
+  {u:2,en:"global warming",ar:"الاحتباس الحراري"},
+  {u:2,en:"exhaust fumes",ar:"دخان السيارات"},
+  {u:2,en:"vehicle emissions",ar:"عوادم المركبات"},
+  {u:2,en:"soil erosion",ar:"تآكل التربة / انجراف التربة"},
+  {u:2,en:"habitat loss",ar:"فقدان المواطن"},
+  {u:2,en:"endangered species",ar:"الأنواع المهددة بالانقراض"},
+  {u:2,en:"water scarcity",ar:"شح المياه"},
+  {u:2,en:"renewable energy",ar:"الطاقة المتجددة"},
+  {u:2,en:"toxic waste",ar:"النفايات السامة"},
+  {u:2,en:"ozone layer",ar:"طبقة الأوزون"},
+  {u:2,en:"greenhouse effect",ar:"تأثير البيت الزجاجي"},
+  {u:2,en:"wind turbine",ar:"توربينات الرياح"},
+  {u:2,en:"solitary",ar:"منعزل"},
+  {u:2,en:"nocturnal",ar:"ليلي"},
+  {u:2,en:"slimy",ar:"لزج"},
+  {u:2,en:"furry",ar:"مكسو بالفرو"},
+  {u:2,en:"marine",ar:"بحري"},
+  {u:2,en:"invertebrates",ar:"اللافقاريات"},
+  {u:2,en:"poacher",ar:"صياد مخالف"},
+  {u:2,en:"predator",ar:"المفترس"},
+  {u:2,en:"worried",ar:"قلق"},
+  {u:2,en:"essential",ar:"مهم / ضروري"},
+  {u:2,en:"planet",ar:"كوكب"},
+  {u:2,en:"creatures",ar:"مخلوقات"},
+  {u:2,en:"extinct",ar:"منقرض"},
+  {u:2,en:"wildlife",ar:"الحياة البرية"},
+  {u:2,en:"natural predator",ar:"المفترس الطبيعي"},
+  {u:2,en:"chemical waste",ar:"نفايات كيميائية"},
+  {u:2,en:"greenhouse gases",ar:"الغازات الدفيئة"},
+  {u:2,en:"critically endangered",ar:"مهدد بالخطر بشكل خطير"},
+  {u:2,en:"reintroduce",ar:"يعيد إنتاج"},
+  {u:2,en:"natural primate",ar:"الرئيسيات الطبيعية"},
+  {u:2,en:"echolocation",ar:"تحديد الموقع بالصدى"},
+  {u:2,en:"irresistibly",ar:"لا يقاوم"},
+  {u:2,en:"pesticides",ar:"مبيدات حشرية"},
+  {u:2,en:"corruption",ar:"فساد"},
+  {u:2,en:"consumerism",ar:"استهلاك"},
+  {u:2,en:"public opinion",ar:"الرأي العام"},
+  {u:2,en:"water use",ar:"استخدام المياه"},
+  // Unit 4 - Inside story
+  {u:4,en:"hard-hitting",ar:"نقد شديد اللهجة"},
+  {u:4,en:"quirky",ar:"غريب / مضحك"},
+  {u:4,en:"heartbreaking",ar:"محزن"},
+  {u:4,en:"newsworthy",ar:"مثير / مهم"},
+  {u:4,en:"balanced",ar:"متوازن"},
+  {u:4,en:"topical",ar:"مواكب"},
+  {u:4,en:"sensational",ar:"صادم / مثير"},
+  {u:4,en:"exclusive",ar:"حصري"},
+  {u:4,en:"heartwarming",ar:"جميل / أسعد للقلب"},
+  {u:4,en:"capture",ar:"يلتقط الصور"},
+  {u:4,en:"crop",ar:"يزيل أجزاء من صورة"},
+  {u:4,en:"evoke",ar:"يثير مشاعر / يستحضر"},
+  {u:4,en:"landscape",ar:"منظر طبيعي"},
+  {u:4,en:"poignant",ar:"مثير للمشاعر / يحزن"},
+  {u:4,en:"pose",ar:"يجلس في وضعية معينة"},
+  {u:4,en:"subject matter",ar:"موضوع"},
+  {u:4,en:"peer",ar:"يلاحظ شيئاً بدقة"},
+  {u:4,en:"glance",ar:"يلقي نظرة عاجلة"},
+  {u:4,en:"spot",ar:"يكتشف"},
+  {u:4,en:"bellow",ar:"يصرخ بصوت عالٍ"},
+  {u:4,en:"yell",ar:"يصيح"},
+  {u:4,en:"mutter",ar:"يتمتم"},
+  {u:4,en:"fake news",ar:"الأخبار الزائفة"},
+  {u:4,en:"urban myth",ar:"خرافة شائعة"},
+  {u:4,en:"utterly",ar:"تماماً"},
+  {u:4,en:"furiously",ar:"بشدة"},
+  {u:4,en:"occasionally",ar:"أحياناً"},
+  {u:4,en:"cyclone",ar:"الإعصار"},
+  {u:4,en:"villagers",ar:"القرويون"},
+  {u:4,en:"circumstances",ar:"الظروف"},
+  {u:4,en:"found out",ar:"اكتشف"},
+  {u:4,en:"reliable",ar:"الأغلبية العظمى"},
+  {u:4,en:"enthusiastic",ar:"متحمس"},
+  {u:4,en:"abandoning",ar:"يتخلى"},
+  {u:4,en:"tension",ar:"توتر"},
+  {u:4,en:"pavement",ar:"الرصيف"},
+  {u:4,en:"replacement",ar:"بديل"},
+  {u:4,en:"obstruct",ar:"يعرقل"},
+  {u:4,en:"suspension",ar:"تعليق التلصق"},
+  // Unit 5 - الحواس
+  {u:5,en:"perceive",ar:"يدرك / يلاحظ"},
+  {u:5,en:"smelly",ar:"ذو رائحة كريهة"},
+  {u:5,en:"subtle",ar:"بسيط / خفيف / صعب ملاحظته"},
+  {u:5,en:"aroma",ar:"رائحة الطعام والشراب"},
+  {u:5,en:"colour-blind",ar:"عمى الألوان"},
+  {u:5,en:"eyesight",ar:"البصر / النظر"},
+  {u:5,en:"hearing loss",ar:"فقدان السمع"},
+  {u:5,en:"make out",ar:"يرى / يسمع / يفهم بصعوبة"},
+  {u:5,en:"mouth-watering",ar:"شهي يسيل اللعاب"},
+  {u:5,en:"overpowering",ar:"قوي جداً"},
+  {u:5,en:"scent",ar:"رائحة الزهور اللطيفة / عطر"},
+  {u:5,en:"stench",ar:"رائحة كريهة لشيء"},
+  {u:5,en:"stink",ar:"يبعث برائحة كريهة"},
+  {u:5,en:"taste buds",ar:"براعم التذوق في اللسان"},
+  {u:5,en:"gastronomy",ar:"فن الطهي"},
+  {u:5,en:"petrified",ar:"خائف / مذعور"},
+  {u:5,en:"deafening",ar:"صاخب ويصم الآذان"},
+  {u:5,en:"ridiculous",ar:"سخيف / تافه"},
+  {u:5,en:"fascinating",ar:"ساحر / ممتع"},
+  {u:5,en:"mind-blowing",ar:"مثير وببوخد العقل"},
+  // Unit 6 - Where we live
+  {u:6,en:"excess",ar:"زائد عن الحاجة"},{u:6,en:"confined",ar:"محصور"},{u:6,en:"compact",ar:"صغير ومرتب"},{u:6,en:"densely populated",ar:"مكتظ بالسكان"},{u:6,en:"cramped",ar:"ضيق"},{u:6,en:"medium-sized",ar:"متوسط الحجم"},{u:6,en:"traditional",ar:"تقليدي"},{u:6,en:"inefficient",ar:"غير فعال"},{u:6,en:"solar energy",ar:"طاقة شمسية"},{u:6,en:"waste water",ar:"مياه الصرف الصحي"},{u:6,en:"passive house",ar:"المنزل الموفر للطاقة"},{u:6,en:"lifestyle choice",ar:"اختيار طريقة الحياة"},{u:6,en:"ecologically",ar:"بيئياً"},{u:6,en:"get rid of",ar:"يتخلص من"},{u:6,en:"possessions",ar:"ممتلكات"},{u:6,en:"engage with",ar:"يتحدث مع"},{u:6,en:"living small",ar:"العيش في مساحة صغيرة"},{u:6,en:"inspiration",ar:"إلهام"},{u:6,en:"saving space",ar:"توفير المساحة"},{u:6,en:"manage",ar:"يتمكن"},{u:6,en:"ingenious",ar:"مبتكر"},{u:6,en:"solutions",ar:"حلول"},{u:6,en:"wardrobes",ar:"خزائن الملابس"},{u:6,en:"sliding doors",ar:"أبواب سحب"},{u:6,en:"personal space",ar:"مساحة شخصية"},{u:6,en:"spacesuit",ar:"بدلة الفضاء"},{u:6,en:"missions",ar:"مهام"},{u:6,en:"retreating",ar:"التراجع"},{u:6,en:"research",ar:"بحث"},{u:6,en:"relationships",ar:"علاقات"},{u:6,en:"negotiate",ar:"يتفاوض"},{u:6,en:"assumption",ar:"افتراض"},{u:6,en:"belief",ar:"اعتقاد"},{u:6,en:"punishment",ar:"عقاب"},{u:6,en:"balance",ar:"توازن"},{u:6,en:"interact",ar:"يتفاعل"},{u:6,en:"improvement",ar:"تحسين"},{u:6,en:"suggestions",ar:"اقتراحات"},{u:6,en:"priority",ar:"الأولوية"},
+  // Unit 7 - Is it fair?
+  {u:7,en:"industrious",ar:"مجد وجاد"},{u:7,en:"commission",ar:"عمولة"},{u:7,en:"intern",ar:"متدرب"},{u:7,en:"integral",ar:"أساسي"},{u:7,en:"ill-equipped",ar:"غير مجهز بشكل جيد"},{u:7,en:"anonymous",ar:"مجهول"},{u:7,en:"proceeds",ar:"عائدات"},{u:7,en:"foundation",ar:"مؤسسة"},{u:7,en:"set out",ar:"يبدأ بهدف محدد"},{u:7,en:"prove",ar:"يثبت"},{u:7,en:"teenager",ar:"مراهق"},{u:7,en:"majestically",ar:"بشكل مهيب"},{u:7,en:"desperately",ar:"بشدة"},{u:7,en:"accompanied",ar:"برفقة"},{u:7,en:"daughters",ar:"بنات"},{u:7,en:"succeed",ar:"ينجح"},{u:7,en:"guides",ar:"أدلاء"},{u:7,en:"achieve",ar:"يحقق"},{u:7,en:"dangerous",ar:"خطير"},{u:7,en:"daily",ar:"يومياً"},{u:7,en:"conditions",ar:"ظروف"},{u:7,en:"climbers",ar:"متسلقون"},{u:7,en:"response",ar:"رد فعل"},{u:7,en:"donate",ar:"يتبرع"},{u:7,en:"colleagues",ar:"زملاء"},{u:7,en:"adventure",ar:"مغامرة"},{u:7,en:"autumn",ar:"خريف"},{u:7,en:"fund-raising",ar:"جمع التبرعات"},{u:7,en:"philosophy",ar:"فلسفة"},{u:7,en:"community",ar:"مجتمع"},{u:7,en:"purchase",ar:"يشتري"},{u:7,en:"coupon",ar:"قسيمة"},{u:7,en:"strangers",ar:"غرباء"},{u:7,en:"queue",ar:"طابور"},{u:7,en:"wallet",ar:"محفظة"},{u:7,en:"gesture",ar:"لفتة"},{u:7,en:"difference",ar:"فرق"},{u:7,en:"impact",ar:"تأثير"},{u:7,en:"discrimination",ar:"تمييز"},{u:7,en:"claim",ar:"ادعاء"},{u:7,en:"sacked",ar:"مفصول"},{u:7,en:"laws",ar:"قوانين"},{u:7,en:"basis",ar:"أساس"},{u:7,en:"rule",ar:"قاعدة"},{u:7,en:"retire",ar:"يتقاعد"},{u:7,en:"recruiting",ar:"تعيين / توظيف"},{u:7,en:"judge",ar:"قاضي"},{u:7,en:"award",ar:"يمنح"},{u:7,en:"compensation",ar:"تعويض"},{u:7,en:"charity",ar:"جمعية خيرية"},{u:7,en:"reality",ar:"واقع"},{u:7,en:"persuade",ar:"يقنع"},{u:7,en:"persistence",ar:"إصرار"},{u:7,en:"obvious",ar:"واضح"},{u:7,en:"campaign",ar:"حملة"},{u:7,en:"attitudes",ar:"مواقف"},{u:7,en:"litter bins",ar:"سلال القمامة"},
+  // Unit 8 - Digital perspectives
+  {u:8,en:"latest",ar:"الأحدث"},
+  {u:8,en:"upgrade",ar:"يحدّث"},
+  {u:8,en:"outdated",ar:"قديم الطراز"},
+  {u:8,en:"back up",ar:"يعمل النسخ الاحتياطي"},
+  {u:8,en:"handle",ar:"يتعامل"},
+  {u:8,en:"functionality",ar:"الأداء الوظيفي"},
+  {u:8,en:"state-of-the-art",ar:"الأحدث"},
+  {u:8,en:"obsolete",ar:"قديم جداً / عفا عليه الزمن"},
+  {u:8,en:"compatibility",ar:"التوافق"},
+  {u:8,en:"bugs or glitches",ar:"أخطاء أو خلل"},
+  {u:8,en:"hold down",ar:"يحافظ على / يبقى"},
+  {u:8,en:"fit in",ar:"ينتمي"},
+  {u:8,en:"eat away at someone",ar:"يشعر شخص ما بالسوء / يتبدد"},
+  {u:8,en:"break off",ar:"ينقطع / يتوقف"},
+  {u:8,en:"end up",ar:"ينتهي به المطاف"},
+  {u:8,en:"bump into",ar:"يرى / يصادف"},
+  {u:8,en:"go through",ar:"يخوض تجربة"},
+  {u:8,en:"calm down",ar:"يهدأ / يسترخي"},
+  {u:8,en:"come up against",ar:"يواجه"},
+  {u:8,en:"appealing",ar:"جذاب / مثير للاهتمام"},
+  {u:8,en:"endless",ar:"غير منتهي / مستمر"},
+  {u:8,en:"envious",ar:"حاسد / غيور"},
+  {u:8,en:"influential",ar:"مؤثر"},
+  {u:8,en:"upbeat",ar:"مبهج / إيجابي"},
+  {u:8,en:"virtual reality",ar:"الواقع الافتراضي"},
+  {u:8,en:"simulation",ar:"محاكاة"},
+  {u:8,en:"perceptions",ar:"تصورات"},
+  {u:8,en:"sensory",ar:"حسي"},
+  {u:8,en:"overload",ar:"التحميل الزائد"},
+  {u:8,en:"subconsciously",ar:"بشكل غير واعٍ"},
+  {u:8,en:"disabled",ar:"عاجز"},
+  {u:8,en:"queue up",ar:"يقف في طابور"},
+  {u:8,en:"early adopter",ar:"أوائل المستخدمين"},
+  {u:8,en:"laggards",ar:"متخلفين عن الركب"},
+  {u:8,en:"essentially",ar:"بشكل أساسي"},
+  {u:8,en:"manufacturers",ar:"مصنعون"},
+  {u:8,en:"various",ar:"مختلف"},
+  {u:8,en:"overwhelming",ar:"ضخم للغاية"},
+  {u:8,en:"ASD",ar:"اضطراب طيف التوحد"},
+  {u:8,en:"hypersensitivity",ar:"فرط الحساسية"},
+  {u:8,en:"stressful",ar:"مرهق"},
+  {u:8,en:"cope with",ar:"يتعامل"},
+  {u:8,en:"meltdown",ar:"انهيار"},
+  {u:8,en:"unreliable",ar:"غير موثوق به"},
+  {u:8,en:"bad-tempered",ar:"سيء المزاج"},
+  {u:8,en:"password",ar:"كلمة السر"},
+  {u:8,en:"personalised",ar:"مخصص"},
+  {u:8,en:"invasion",ar:"انتهاك"},
+  {u:8,en:"convenient",ar:"ملائم"},
+  {u:8,en:"secure",ar:"آمن"},
+  {u:8,en:"potential",ar:"محتمل"},
+  {u:8,en:"significant",ar:"جدير بالملاحظة"},
+  {u:8,en:"avoid",ar:"يتجنب"},
+  {u:8,en:"annoying",ar:"مزعج"},
+  {u:8,en:"harmless",ar:"غير ضار"},
+  {u:8,en:"surprising",ar:"مذهل"},
+  // Unit 9 - Highs and lows
+  {u:9,en:"ordeal",ar:"تجربة صعبة ومؤلمة"},{u:9,en:"ups and downs",ar:"السراء والضراء"},{u:9,en:"sooner or later",ar:"عاجلاً أم آجلاً"},{u:9,en:"take it or leave it",ar:"اقبل أو ارفض"},{u:9,en:"more or less",ar:"أكثر أو أقل / تقريباً"},{u:9,en:"safe and sound",ar:"سالماً غانماً"},{u:9,en:"there and then",ar:"فوراً"},{u:9,en:"touch and go",ar:"غير مؤكد"},{u:9,en:"supplies",ar:"إمدادات"},{u:9,en:"pick and choose",ar:"يختار بدقة وحذر"},{u:9,en:"sea bed",ar:"قاع البحر"},{u:9,en:"refugee",ar:"لاجئ"},{u:9,en:"opportunities",ar:"فرص"},{u:9,en:"mental health",ar:"الصحة النفسية"},{u:9,en:"athletes",ar:"لاعبو القوى"},{u:9,en:"cycling",ar:"ركوب الدراجات"},{u:9,en:"canoeing",ar:"التجديف"},{u:9,en:"wheelchair",ar:"الكرسي المتحرك"},{u:9,en:"coaches",ar:"مدربون"},{u:9,en:"backgrounds",ar:"خلفيات"},{u:9,en:"incredible",ar:"لا يصدق"},{u:9,en:"terrifying",ar:"مرعب"},{u:9,en:"hardship",ar:"معاناة"},{u:9,en:"lucrative",ar:"مربح"},{u:9,en:"isolation",ar:"عزلة"},{u:9,en:"setback",ar:"نكسة"},{u:9,en:"rope",ar:"حبل"},{u:9,en:"give up",ar:"يستسلم"},{u:9,en:"rescued",ar:"تم إنقاذه"},{u:9,en:"embassy",ar:"سفارة"},{u:9,en:"competitive",ar:"تنافسي"},{u:9,en:"take part",ar:"يشارك"},{u:9,en:"fair play",ar:"اللعب النظيف"},{u:9,en:"demonstrate",ar:"يوضح"},{u:9,en:"headlines",ar:"عناوين الأخبار"},{u:9,en:"attempt",ar:"محاولة"},{u:9,en:"finish line",ar:"خط النهاية"},{u:9,en:"heroism",ar:"بطولة"},{u:9,en:"injured",ar:"مصاب"},{u:9,en:"desire",ar:"رغبة"},{u:9,en:"accident",ar:"حادث"},{u:9,en:"qualifications",ar:"مؤهلات"},{u:9,en:"researcher",ar:"باحث"},{u:9,en:"digital nomad",ar:"رحالة رقمي"},{u:9,en:"expenses",ar:"نفقات"},{u:9,en:"documentary",ar:"وثائقي"},{u:9,en:"lifelong dream",ar:"حلم الحياة"},{u:9,en:"explore",ar:"يستكشف"},{u:9,en:"culture",ar:"ثقافة"},{u:9,en:"appeal",ar:"يجذب"},{u:9,en:"enormously",ar:"بشكل هائل"}
+];
+let pool=[],idx=0,score=0,wrong=0,answered=false,currentUnit='all',currentMode='ar',currentDir='ar';
+function shuffle(a){return[...a].sort(()=>Math.random()-0.5);}
+function getPool(u){return u==='all'?[...allWords]:allWords.filter(w=>w.u===u);}
+function selectUnit(u,el){currentUnit=u;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');restart();}
+function selectMode(m,el){currentMode=m;document.querySelectorAll('.mode-btn').forEach(t=>t.classList.remove('active'));el.classList.add('active');restart();}
+function getQuestionDir(){if(currentMode==='ar')return'ar';if(currentMode==='en')return'en';return Math.random()<0.5?'ar':'en';}
+function restart(){pool=shuffle(getPool(currentUnit));idx=0;score=0;wrong=0;answered=false;document.getElementById('result').style.display='none';document.getElementById('qcard').style.display='block';updateStats();showQ();}
+function updateStats(){document.getElementById('s-score').textContent=score;document.getElementById('s-wrong').textContent=wrong;document.getElementById('s-remain').textContent=pool.length-idx;const pct=pool.length>0?Math.round((idx/pool.length)*100):0;document.getElementById('prog').style.width=pct+'%';}
+function showQ(){
+  if(idx>=pool.length){showResult();return;}
+  const w=pool[idx];currentDir=getQuestionDir();
+  document.getElementById('qcount').textContent='السؤال '+(idx+1)+' من '+pool.length;
+  const badge=document.getElementById('qbadge'),main=document.getElementById('qmain'),sub=document.getElementById('qsub'),optsEl=document.getElementById('opts');
+  if(currentDir==='ar'){
+    badge.textContent='🇸🇦 اختر الترجمة الإنجليزية';badge.className='q-mode-badge badge-ar';
+    main.textContent=w.ar;main.style.direction='rtl';sub.textContent='What is the English word for this?';
+    const opts=shuffle([w,...shuffle(allWords.filter(x=>x.en!==w.en)).slice(0,3)]);
+    optsEl.innerHTML='';
+    opts.forEach(o=>{const b=document.createElement('button');b.className='opt en-opt';b.textContent=o.en;b.onclick=()=>answer(b,o.en,w.en,w.en);optsEl.appendChild(b);});
+  }else{
+    badge.textContent='🇬🇧 اختر الترجمة العربية';badge.className='q-mode-badge badge-en';
+    main.textContent=w.en;main.style.direction='ltr';sub.textContent='ما معنى هذه الكلمة بالعربية؟';
+    const opts=shuffle([w,...shuffle(allWords.filter(x=>x.ar!==w.ar)).slice(0,3)]);
+    optsEl.innerHTML='';
+    opts.forEach(o=>{const b=document.createElement('button');b.className='opt ar-opt';b.textContent=o.ar;b.onclick=()=>answer(b,o.ar,w.ar,w.ar);optsEl.appendChild(b);});
+  }
+  document.getElementById('feedback').className='feedback';document.getElementById('feedback').textContent='';document.getElementById('nextbtn').style.display='none';answered=false;
+}
+function answer(btn,chosen,correct,correctVal){
+  if(answered)return;answered=true;
+  document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.textContent===correctVal)b.classList.add('correct');});
+  const fb=document.getElementById('feedback');
+  if(chosen===correct){score++;btn.classList.add('correct');fb.textContent='✅ ممتاز! الإجابة صحيحة';fb.className='feedback correct';}
+  else{wrong++;btn.classList.add('wrong');fb.textContent='❌ الإجابة الصحيحة: '+correctVal;fb.className='feedback wrong';}
+  idx++;updateStats();document.getElementById('nextbtn').style.display='block';
+}
+function nextQ(){showQ();}
+function showResult(){
+  document.getElementById('qcard').style.display='none';
+  const r=document.getElementById('result');r.style.display='block';
+  const pct=Math.round((score/pool.length)*100);
+  document.getElementById('res-score').textContent=pct+'%';
+  let msg='';
+  if(pct>=90)msg='🏆 ممتاز! أداء رائع';
+  else if(pct>=70)msg='👍 جيد جداً! استمر في المراجعة';
+  else if(pct>=50)msg='📖 جيد، لكن تحتاج مزيداً من المراجعة';
+  else msg='💪 راجع المفردات مجدداً وحاول مرة أخرى';
+  document.getElementById('res-msg').textContent=msg+' — الصحيح: '+score+' من '+pool.length;
+}
+restart();
+</script>
+</body>
+</html>
